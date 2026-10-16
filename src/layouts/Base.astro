@@ -1,0 +1,82 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Cursor from '../components/Cursor.astro';
+import { club } from '../data/site';
+import '../styles/global.css';
+import displayFont from '@fontsource-variable/big-shoulders-display/files/big-shoulders-display-latin-wght-normal.woff2?url';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Datos estructurados extra de la página (schema.org). */
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description = `${club.fullName}: alquiler de pistas, clases para todos los niveles y tienda de palas, ropa y material de pádel.`,
+  jsonLd,
+} = Astro.props;
+const fullTitle = title ? `${title} · ${club.fullName}` : `${club.fullName} · ${club.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/og.png', Astro.site);
+
+const clubLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SportsActivityLocation',
+  name: club.fullName,
+  url: Astro.site?.href,
+  telephone: club.phone,
+  email: club.email,
+  address: { '@type': 'PostalAddress', streetAddress: 'Av. del Cristal 12', postalCode: '28042', addressLocality: 'Madrid', addressCountry: 'ES' },
+  openingHoursSpecification: [
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '07:00', closes: '23:30' },
+    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Saturday', 'Sunday'], opens: '08:00', closes: '22:00' },
+  ],
+};
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b0d0e" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="es_ES" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(clubLd)} />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <ClientRouter />
+    <script is:inline>
+      // Marca que habrá animaciones de entrada (el CSS oculta su estado inicial).
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.setAttribute('data-motion', '');
+    </script>
+  </head>
+  <body>
+    <a class="skip-link btn btn--ball" href="#main">Saltar al contenido</a>
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <Cursor />
+    <span id="new-tab" hidden>Se abre en otra pestaña</span>
+    <script>
+      import '../lib/motion';
+    </script>
+  </body>
+</html>

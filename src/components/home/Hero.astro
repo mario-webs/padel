@@ -1,0 +1,247 @@
+---
+import { club } from '../../data/site';
+---
+<section class="hero" data-hero>
+  <div class="hero__stage" aria-hidden="true">
+    <!-- Pista vista desde arriba (20 × 10 m) inclinada en perspectiva; se dibuja al cargar y gira con el scroll. -->
+    <div class="hero__court" data-hero-court>
+      <div class="hero__plane" data-hero-plane>
+      <svg viewBox="0 0 200 100" preserveAspectRatio="none">
+        <rect class="hero__turf" x="0" y="0" width="200" height="100" />
+        <g class="hero__lines" data-hero-lines>
+          <rect x="0.5" y="0.5" width="199" height="99" pathLength="1" />
+          <line x1="100" y1="0" x2="100" y2="100" pathLength="1" class="hero__net" />
+          <line x1="30" y1="0" x2="30" y2="100" pathLength="1" />
+          <line x1="170" y1="0" x2="170" y2="100" pathLength="1" />
+          <line x1="30" y1="50" x2="170" y2="50" pathLength="1" />
+        </g>
+      </svg>
+      <span class="hero__ball" data-hero-ball></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container hero__content" data-hero-content>
+    <p class="eyebrow" data-hero-fade>{club.fullName} · Madrid</p>
+    <h1 class="hero__title" data-hero-title>
+      <span class="hero__line"><span>Juega.</span></span>
+      <span class="hero__line"><span>Entrena.</span></span>
+      <span class="hero__line hero__line--ball"><span>Equípate.</span></span>
+    </h1>
+    <div class="hero__bottom" data-hero-fade>
+      <p class="hero__lead">Pistas de cristal, clases para todos los niveles y la tienda de pádel más completa de la zona. Todo en un mismo club.</p>
+      <div class="hero__actions">
+        <a class="btn btn--ball" href={club.bookingUrl} target="_blank" rel="noopener" aria-describedby="new-tab" data-magnetic>Reservar pista</a>
+        <a class="btn btn--ghost" href="/clases">Ver clases</a>
+      </div>
+    </div>
+  </div>
+
+  <p class="hero__scroll" aria-hidden="true">Desliza</p>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    align-items: end;
+    min-height: 100svh;
+    padding-block: 7rem 3rem;
+    overflow: hidden;
+    background: radial-gradient(110% 80% at 75% 0%, var(--court) 0%, var(--ink) 72%);
+  }
+
+  .hero__stage {
+    position: absolute;
+    inset: 0;
+    perspective: 1400px;
+    perspective-origin: 70% 0%;
+  }
+
+  .hero__court {
+    position: absolute;
+    top: 6%;
+    right: -22%;
+    width: min(88vw, 1200px);
+    aspect-ratio: 2 / 1;
+    transform: rotateX(58deg);
+  }
+
+  /* Capas separadas: GSAP compone las rotaciones en otro orden que el CSS. */
+  .hero__plane {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-24deg);
+  }
+
+  .hero__court svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .hero__turf {
+    fill: color-mix(in oklab, var(--court) 70%, #1d5fa8);
+    opacity: 0.55;
+  }
+
+  .hero__lines {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 0.6;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.8;
+  }
+
+  .hero__net {
+    stroke-width: 1.4;
+    stroke: var(--ball);
+  }
+
+  .hero__ball {
+    position: absolute;
+    left: 66%;
+    top: 34%;
+    width: 2.4%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f3ff9a, var(--ball) 55%, #a9c21c);
+    box-shadow: 0 0 40px color-mix(in oklab, var(--ball) 60%, transparent);
+  }
+
+  .hero__content {
+    position: relative;
+  }
+
+  .hero__title {
+    display: flex;
+    flex-direction: column;
+    margin-block: 1rem 2.5rem;
+    font-size: var(--step-5);
+  }
+
+  /* Máscara por línea; el padding deja sitio a la tilde de EQUÍPATE. */
+  .hero__line {
+    display: block;
+    overflow: clip;
+    padding-top: 0.12em;
+    margin-top: -0.12em;
+  }
+
+  .hero__line > span {
+    display: block;
+  }
+
+  .hero__line--ball {
+    color: var(--ball);
+  }
+
+  .hero__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem 3rem;
+  }
+
+  .hero__lead {
+    max-width: 38ch;
+    color: var(--muted);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .hero__scroll {
+    position: absolute;
+    right: var(--gutter);
+    top: 50%;
+    writing-mode: vertical-rl;
+    font-size: var(--step--1);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .hero__scroll::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 4rem;
+    margin: 1rem auto 0;
+    background: linear-gradient(var(--muted), transparent);
+  }
+
+  /* Evita el destello del estado final antes de que arranque la intro. */
+  :global(html[data-motion]) .hero__content {
+    visibility: hidden;
+    animation: hero-fallback 0s 3.5s forwards;
+  }
+
+  @keyframes hero-fallback {
+    to {
+      visibility: visible;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .hero__court {
+      top: 10%;
+      right: -45%;
+      width: 150vw;
+    }
+    .hero__scroll {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { gsap, onPage, introDone, EASE_OUT } from '../../lib/motion';
+
+  onPage(() => {
+    const hero = document.querySelector<HTMLElement>('[data-hero]');
+    if (!hero) return;
+
+    const court = hero.querySelector<HTMLElement>('[data-hero-court]')!;
+    const lines = hero.querySelectorAll('[data-hero-lines] > *');
+    const intro = gsap
+      .timeline({ paused: true })
+      .set('[data-hero-content]', { visibility: 'visible' })
+      .fromTo(lines, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.6, ease: 'power2.inOut', stagger: 0.12 }, 0)
+      .from('.hero__line > span', { yPercent: 110, duration: 1.1, ease: EASE_OUT, stagger: 0.09 }, 0.1)
+      .from('[data-hero-fade]', { opacity: 0, y: 24, duration: 0.9, ease: EASE_OUT, stagger: 0.1 }, 0.45)
+      .from('[data-hero-ball]', { y: -200, opacity: 0, duration: 1, ease: 'bounce.out' }, 0.6);
+
+    introDone().then(() => intro.play());
+
+    gsap.set('[data-hero-court]', { rotationX: 58 });
+    gsap.set('[data-hero-plane]', { rotation: -24 });
+
+    // Con el scroll la pista pasa de perspectiva a vista cenital y la bola cruza la red.
+    gsap
+      .timeline({
+        scrollTrigger: { trigger: hero, start: 'top top', end: '+=100%', scrub: true, pin: true, anticipatePin: 1, invalidateOnRefresh: true },
+        defaults: { ease: 'none' },
+      })
+      // Termina centrada y ajustada al 86 % del ancho (o del alto) de la pantalla.
+      .to(
+        court,
+        {
+          rotationX: 0,
+          x: () => innerWidth / 2 - (court.offsetLeft + court.offsetWidth / 2),
+          y: () => innerHeight / 2 - (court.offsetTop + court.offsetHeight / 2),
+          scale: () => Math.min((innerWidth * 0.86) / court.offsetWidth, (innerHeight * 0.8) / court.offsetHeight),
+        },
+        0,
+      )
+      .to('[data-hero-plane]', { rotation: 0 }, 0)
+      // La bola mide un 2,4 % del ancho de la pista: -1500 % ≈ 36 % de la pista hacia la izquierda.
+      .to('[data-hero-ball]', { xPercent: -1500, yPercent: 580 }, 0)
+      .to('[data-hero-content]', { yPercent: -25, opacity: 0 }, 0)
+      .to('.hero__scroll', { opacity: 0 }, 0);
+  });
+</script>

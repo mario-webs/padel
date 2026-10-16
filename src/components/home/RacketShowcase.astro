@@ -1,0 +1,216 @@
+---
+import { racket } from '../../data/club';
+---
+<section class="showcase" aria-labelledby="showcase-title" data-showcase>
+  <div class="container showcase__grid">
+    <div class="showcase__copy">
+      <p class="eyebrow"><span class="num">03</span> Pala de la temporada</p>
+      <h2 id="showcase-title" class="showcase__title" data-reveal>{racket.name}</h2>
+      <p class="showcase__lead">Diseñada con nuestros entrenadores para el jugador que ataca. Pruébala gratis en pista antes de decidirte.</p>
+      <p class="showcase__price"><span>{racket.price} €</span> · disponible en el club</p>
+      <a class="btn btn--ball" href="/tienda/volea-pro-26" data-magnetic>Ver en la tienda</a>
+    </div>
+
+    <div class="showcase__stage">
+      <!-- Pala dibujada en capas que se separan con el scroll (vista despiezada). -->
+      <svg class="racket" data-racket viewBox="0 0 260 420" role="img" aria-label={`Pala ${racket.name}`}>
+        <defs>
+          <linearGradient id="r-face" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#1b4f86" />
+            <stop offset="1" stop-color="#0b2440" />
+          </linearGradient>
+          <pattern id="r-carbon" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="8" height="8" fill="#14171a" />
+            <rect width="4" height="4" fill="#1f2328" />
+            <rect x="4" y="4" width="4" height="4" fill="#1f2328" />
+          </pattern>
+          <pattern id="r-core" width="10" height="21" patternUnits="userSpaceOnUse">
+            <rect width="10" height="21" fill="#e9e4d6" />
+            <rect y="9" width="10" height="9" fill="#d8d1bf" />
+          </pattern>
+        </defs>
+
+        <g class="racket__layer" data-layer="core">
+          <path d="M130 22 C205 22 238 78 238 140 C238 206 196 254 130 274 C64 254 22 206 22 140 C22 78 55 22 130 22Z" fill="url(#r-core)" />
+        </g>
+
+        <g class="racket__layer" data-layer="carbon">
+          <path d="M130 14 C210 14 246 74 246 140 C246 210 200 262 130 284 C60 262 14 210 14 140 C14 74 50 14 130 14Z" fill="url(#r-carbon)" />
+        </g>
+
+        <g class="racket__layer" data-layer="face">
+          <path d="M130 8 C215 8 252 70 252 140 C252 215 205 268 130 290 C55 268 8 215 8 140 C8 70 45 8 130 8Z" fill="url(#r-face)" stroke="var(--ink)" stroke-width="5" />
+          <path d="M40 200 C90 120 170 100 230 60" fill="none" stroke="var(--ball)" stroke-width="10" stroke-linecap="round" />
+          <g fill="var(--ink)" opacity="0.55">
+            {[70, 100, 130, 160, 190].flatMap((x) => [80, 110, 140, 170, 200].map((y) => <circle cx={x} cy={y} r="5" />))}
+          </g>
+          <text x="130" y="248" text-anchor="middle" fill="var(--line)" font-family="var(--font-display)" font-weight="800" font-size="22" letter-spacing="2">VOLEA</text>
+          <path d="M108 284 L116 330 L144 330 L152 284" fill="#0b0d0e" />
+          <rect x="114" y="326" width="32" height="88" rx="8" fill="var(--line)" />
+          <g stroke="#c9c4b6" stroke-width="2">
+            {Array.from({ length: 9 }, (_, i) => <line x1="114" y1={334 + i * 9} x2="146" y2={340 + i * 9} />)}
+          </g>
+        </g>
+      </svg>
+
+      <ul class="specs">
+        {racket.specs.map((s, i) => (
+          <li class="specs__item" style={`--i:${i}`}>
+            <span class="specs__label">{s.label}</span>
+            <span class="specs__value">{s.value}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .showcase {
+    position: relative;
+    padding-block: var(--section);
+    overflow: hidden;
+  }
+
+  .showcase::before {
+    content: '';
+    position: absolute;
+    inset: 15% -10% auto 40%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in oklab, var(--court) 90%, #2a6fbf) 0%, transparent 65%);
+    opacity: 0.8;
+    pointer-events: none;
+  }
+
+  .showcase__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: var(--gutter);
+    align-items: center;
+  }
+
+  .showcase__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+
+  .showcase__title {
+    font-size: var(--step-4);
+  }
+
+  .showcase__lead {
+    max-width: 34ch;
+    color: var(--muted);
+  }
+
+  .showcase__price {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .showcase__price span {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-2);
+    color: var(--line);
+  }
+
+  .showcase__stage {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .racket {
+    width: 100%;
+    max-width: 380px;
+    justify-self: center;
+    overflow: visible;
+    rotate: -12deg;
+    filter: drop-shadow(0 40px 60px rgb(0 0 0 / 0.5));
+  }
+
+  .specs {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .specs__item {
+    display: grid;
+    padding-left: 1rem;
+    border-left: 1px solid var(--ball);
+  }
+
+  .specs__label {
+    font-size: var(--step--1);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .specs__value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--step-1);
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 900px) {
+    .showcase__grid {
+      grid-template-columns: 1fr;
+    }
+    .showcase__stage {
+      margin-top: 3rem;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .showcase__stage {
+      grid-template-columns: 1fr;
+    }
+    .racket {
+      max-width: 260px;
+    }
+    .specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { gsap, onPage, EASE_OUT } from '../../lib/motion';
+
+  onPage(() => {
+    const section = document.querySelector<HTMLElement>('[data-showcase]');
+    if (!section) return;
+
+    const mm = gsap.matchMedia();
+    mm.add({ desktop: '(min-width: 901px)', mobile: '(max-width: 900px)' }, (ctx) => {
+      const { desktop } = ctx.conditions!;
+      const layer = (name: string) => section.querySelector(`[data-layer="${name}"]`);
+
+      gsap
+        .timeline({
+          scrollTrigger: desktop
+            ? { trigger: section, start: 'center center', end: '+=90%', pin: true, scrub: 1 }
+            : { trigger: '[data-racket]', start: 'top 75%', end: 'bottom 40%', scrub: 1 },
+        })
+        .to('[data-racket]', { rotation: 10, scale: 0.92, ease: 'none' }, 0)
+        .to(layer('face'), { x: -70, y: -50, ease: 'none' }, 0)
+        .to(layer('core'), { x: 70, y: 50, ease: 'none' }, 0)
+        .from('.specs__item', { opacity: 0, x: 24, ease: EASE_OUT, stagger: 0.12 }, 0.1);
+    });
+
+    return () => mm.revert();
+  });
+</script>

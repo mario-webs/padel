@@ -1,0 +1,191 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import BookCourt from '../components/home/BookCourt.astro';
+import { club } from '../data/site';
+import { courtFeatures, rentals } from '../data/club';
+import { formatPrice } from '../lib/shop';
+import { photos } from '../lib/photos';
+---
+<Base title="Pistas" description="8 pistas de cristal panorámicas, 6 cubiertas y 2 exteriores, con iluminación LED. Reserva online en segundos.">
+  <PageHero
+    eyebrow="Alquiler de pistas"
+    title="8 pistas.<br />Cero excusas."
+    lead="Pistas de cristal panorámicas con césped renovado cada temporada. Reserva online y juega en 90 minutos."
+    image={photos['player-man']}
+  >
+    <a class="btn btn--ball" href={club.bookingUrl} target="_blank" rel="noopener" aria-describedby="new-tab" data-magnetic>Reservar en Playtomic ↗</a>
+  </PageHero>
+
+  <section class="section container" aria-labelledby="features-title">
+    <p class="eyebrow">Instalaciones</p>
+    <h2 id="features-title" class="section-title" data-reveal>Pistas de<br />competición</h2>
+    <ul class="features">
+      {courtFeatures.map((f) => (
+        <li class="feature">
+          <span class="feature__value">{f.value}</span>
+          <h3 class="feature__label">{f.label}</h3>
+          <p class="feature__text">{f.text}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <BookCourt />
+
+  <section class="section container rent" aria-labelledby="rent-title">
+    <div>
+      <p class="eyebrow">Alquiler de material</p>
+      <h2 id="rent-title" class="section-title" data-reveal>¿Vienes<br />sin pala?</h2>
+      <p class="rent__lead">No pasa nada. Pídelo en recepción al llegar o añádelo al reservar.</p>
+    </div>
+    <dl class="rent__list">
+      {rentals.map((r) => (
+        <div>
+          <dt>{r.item}{r.note && <small>{r.note}</small>}</dt>
+          <dd>{r.price ? formatPrice(r.price) : 'Gratis'}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section class="section container rules" aria-labelledby="rules-title">
+    <p class="eyebrow">Normas de reserva</p>
+    <h2 id="rules-title" class="section-title" data-reveal>Lo justo<br />y necesario</h2>
+    <ul class="rules__list">
+      <li>Reservas de 60 o 90 minutos, con hasta 14 días de antelación.</li>
+      <li>Cancelación gratuita hasta 24 horas antes.</li>
+      <li>Calzado con suela de espiga obligatorio para cuidar el césped.</li>
+      <li>Llega 10 minutos antes para calentar sin perder tiempo de pista.</li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .feature {
+    display: grid;
+    align-content: start;
+    gap: 0.6rem;
+    padding: clamp(1.25rem, 2vw, 2rem);
+    border-radius: var(--radius);
+    border: 1px solid var(--hairline);
+    background: color-mix(in oklab, var(--court) 35%, var(--ink));
+  }
+
+  .feature__value {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-4);
+    line-height: 0.9;
+    color: var(--ball);
+  }
+
+  .feature__label {
+    font-size: var(--step-1);
+  }
+
+  .feature__text {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .rent {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: var(--gutter);
+    align-items: start;
+  }
+
+  .rent__lead {
+    max-width: 34ch;
+    color: var(--muted);
+  }
+
+  .rent__list div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: 1.25rem;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .rent__list div:first-child {
+    border-top: 1px solid var(--hairline);
+  }
+
+  .rent__list dt {
+    display: grid;
+    font-size: var(--step-1);
+    font-weight: 600;
+  }
+
+  .rent__list small {
+    font-size: var(--step--1);
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .rent__list dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-2);
+  }
+
+  .rules {
+    padding-top: 0;
+  }
+
+  .rules__list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem var(--gutter);
+    padding: 0;
+    list-style: none;
+  }
+
+  .rules__list li {
+    padding-left: 1.75rem;
+    position: relative;
+    color: var(--muted);
+  }
+
+  .rules__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.45em;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background: var(--ball);
+  }
+
+  @media (max-width: 960px) {
+    .features {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .rent,
+    .rules__list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .features {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

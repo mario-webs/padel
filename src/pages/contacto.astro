@@ -1,0 +1,216 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import WhatsAppForm from '../components/WhatsAppForm.astro';
+import { club, whatsappLink } from '../data/site';
+---
+<Base title="Contacto" description="Contacta con Volea Padel Club: dirección, horario, teléfono y WhatsApp.">
+  <PageHero
+    eyebrow="Contacto"
+    title="Hablemos<br />de pádel"
+    lead="Escríbenos por WhatsApp, llámanos o pásate por recepción. Respondemos en menos de un día."
+  />
+
+  <section class="container contact" aria-label="Datos de contacto">
+    <ul class="cards">
+      <li class="card">
+        <h2 class="card__label">WhatsApp</h2>
+        <a class="card__value" href={whatsappLink('Hola, tengo una consulta')} target="_blank" rel="noopener" aria-describedby="new-tab">{club.phone}</a>
+        <p class="card__hint">La forma más rápida</p>
+      </li>
+      <li class="card">
+        <h2 class="card__label">Teléfono</h2>
+        <a class="card__value" href={`tel:${club.phone.replace(/\s/g, '')}`}>{club.phone}</a>
+        <p class="card__hint">En horario de recepción</p>
+      </li>
+      <li class="card">
+        <h2 class="card__label">Email</h2>
+        <a class="card__value" href={`mailto:${club.email}`}>{club.email}</a>
+        <p class="card__hint">Para empresas y eventos</p>
+      </li>
+      <li class="card">
+        <h2 class="card__label">Horario</h2>
+        {club.hours.map((h) => <p class="card__line"><span>{h.days}</span> {h.time}</p>)}
+      </li>
+    </ul>
+  </section>
+
+  <section class="section container contact__grid" aria-labelledby="form-title">
+    <div>
+      <p class="eyebrow">Escríbenos</p>
+      <h2 id="form-title" class="section-title" data-reveal>Cuéntanos</h2>
+      <WhatsAppForm
+        intro="Hola, os escribo desde la web."
+        submit="Enviar por WhatsApp"
+        fields={[
+          { name: 'nombre', label: 'Nombre', required: true, autocomplete: 'name' },
+          { name: 'email', label: 'Email', type: 'email', autocomplete: 'email' },
+          { name: 'tema', label: 'Tema', type: 'select', options: ['Pistas', 'Clases', 'Tienda', 'Torneos', 'Otro'], required: true },
+          { name: 'mensaje', label: 'Mensaje', type: 'textarea', required: true },
+        ]}
+      />
+    </div>
+
+    <!-- El mapa externo solo se carga si se pide: más rápido y sin terceros sin consentimiento. -->
+    <div class="map">
+      <div class="map__frame" data-map data-src="https://www.openstreetmap.org/export/embed.html?bbox=-3.7180%2C40.4080%2C-3.6880%2C40.4260&layer=mapnik&marker=40.4170%2C-3.7030" data-title={`Mapa: ${club.address}`}>
+        <svg class="map__art" viewBox="0 0 400 500" aria-hidden="true">
+          <g fill="none" stroke="var(--hairline)" stroke-width="2">
+            <path d="M0 120 L400 80 M0 260 L400 300 M0 420 L400 380 M90 0 L130 500 M260 0 L220 500 M340 0 L380 500" />
+          </g>
+          <circle cx="200" cy="230" r="14" fill="var(--ball)" />
+          <circle cx="200" cy="230" r="34" fill="none" stroke="var(--ball)" stroke-width="2" opacity="0.4" />
+        </svg>
+        <button type="button" class="btn btn--ball map__load" data-map-load>Ver mapa</button>
+        <p class="map__hint">Se cargará OpenStreetMap</p>
+      </div>
+      <a class="map__link" href={club.mapsUrl} target="_blank" rel="noopener" aria-describedby="new-tab">{club.address} ↗</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact {
+    padding-bottom: 2rem;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--hairline);
+    background: color-mix(in oklab, var(--court) 35%, var(--ink));
+  }
+
+  .card__label {
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+  }
+
+  .card__value {
+    font-size: var(--step-1);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    transition: color var(--dur-ui) var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card__value:hover {
+      color: var(--ball);
+    }
+  }
+
+  .card__hint,
+  .card__line span {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .card__line {
+    display: grid;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .contact__grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: var(--gutter);
+    align-items: start;
+  }
+
+  .map {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .map__frame {
+    position: relative;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 0.75rem;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid var(--hairline);
+    background: color-mix(in oklab, var(--court) 35%, var(--ink));
+  }
+
+  .map__art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .map__load {
+    position: relative;
+    margin-top: 6rem;
+  }
+
+  .map__hint {
+    position: relative;
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .map__frame :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    /* Mapa claro de OSM pasado a tono oscuro para encajar con la web. */
+    filter: invert(0.9) hue-rotate(180deg) saturate(0.6);
+  }
+
+  .map__link {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  @media (max-width: 960px) {
+    .cards {
+      grid-template-columns: 1fr 1fr;
+    }
+    .contact__grid {
+      grid-template-columns: 1fr;
+    }
+    .map__frame {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const frame = document.querySelector<HTMLElement>('[data-map]');
+    frame?.querySelector('[data-map-load]')?.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      iframe.src = frame.dataset.src!;
+      iframe.title = frame.dataset.title!;
+      iframe.referrerPolicy = 'no-referrer';
+      frame.replaceChildren(iframe);
+      iframe.focus();
+    });
+  });
+</script>

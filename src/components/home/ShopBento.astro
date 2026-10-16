@@ -1,0 +1,272 @@
+---
+import { Image } from 'astro:assets';
+import { shopCategories, brands } from '../../data/club';
+import { photos } from '../../lib/photos';
+---
+<section class="shop" aria-labelledby="shop-title">
+  <div class="container">
+    <div class="shop__head">
+      <div>
+        <p class="eyebrow"><span class="num">04</span> Tienda</p>
+        <h2 id="shop-title" class="shop__title" data-reveal>Equípate<br />como un pro</h2>
+      </div>
+      <p class="shop__lead">Más de 240 referencias en el club. Te asesoramos según tu nivel y tu juego, y puedes probar las palas antes de llevártelas.</p>
+    </div>
+
+    <ul class="bento">
+      {shopCategories.map((c) => (
+        <li class={`tile tile--${c.size}`}>
+          <a href={c.href} class="tile__link" data-cursor="Ver">
+            {c.image ? (
+              <Image quality={65} class="tile__img" src={photos[c.image]} alt="" widths={[480, 800, 1200]} sizes="(max-width: 760px) 100vw, 50vw" />
+            ) : (
+              <svg class="tile__art" viewBox="0 0 400 200" aria-hidden="true">
+                <rect x="150" y="40" width="200" height="120" rx="40" fill="none" stroke="var(--ink)" stroke-width="3" />
+                <path d="M190 40 v-14 a16 16 0 0 1 16 -16 h88 a16 16 0 0 1 16 16 v14" fill="none" stroke="var(--ink)" stroke-width="3" />
+                <line x1="150" y1="92" x2="350" y2="92" stroke="var(--ink)" stroke-width="3" />
+                <circle cx="96" cy="140" r="22" fill="none" stroke="var(--ink)" stroke-width="3" />
+                <circle cx="58" cy="152" r="16" fill="none" stroke="var(--ink)" stroke-width="3" />
+              </svg>
+            )}
+            <span class="tile__info">
+              <span class="tile__title">{c.title}</span>
+              <span class="tile__count">{c.count} productos</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="marquee" aria-label="Marcas disponibles" data-marquee-wrap>
+    <button type="button" class="marquee__toggle" aria-pressed="false" data-marquee-toggle>Pausar marcas</button>
+    <ul class="marquee__track" data-marquee>
+      {[...brands, ...brands].map((b, i) => (
+        <li aria-hidden={i >= brands.length ? 'true' : undefined}>{b}</li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .shop {
+    padding-block: var(--section) 0;
+    overflow: hidden;
+  }
+
+  .shop__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1.5rem var(--gutter);
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .shop__title {
+    margin-top: 1.25rem;
+    font-size: var(--step-4);
+  }
+
+  .shop__lead {
+    max-width: 38ch;
+    color: var(--muted);
+  }
+
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: clamp(220px, 22vw, 340px);
+    gap: 0.75rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tile--xl {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .tile--wide {
+    grid-column: span 2;
+  }
+
+  .tile__link {
+    position: relative;
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--court);
+    isolation: isolate;
+  }
+
+  .tile--wide .tile__link {
+    background: var(--ball);
+    color: var(--ink);
+  }
+
+  .tile__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 700ms var(--ease-out);
+  }
+
+  .tile__img + .tile__info {
+    background: linear-gradient(transparent, rgb(0 0 0 / 0.65));
+  }
+
+  .tile__art {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    width: 60%;
+    translate: 0 -50%;
+    transition: translate 500ms var(--ease-out);
+  }
+
+  .tile__info {
+    position: absolute;
+    inset: auto 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
+    padding: 4rem 1.25rem 1.1rem;
+  }
+
+  .tile__title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-2);
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+
+  .tile--xl .tile__title {
+    font-size: var(--step-3);
+  }
+
+  .tile__count {
+    flex-shrink: 0;
+    font-size: var(--step--1);
+    opacity: 0.8;
+  }
+
+  @media (hover: hover) {
+    .tile__link:hover .tile__img {
+      scale: 1.04;
+    }
+    .tile__link:hover .tile__art {
+      translate: -0.75rem -50%;
+    }
+  }
+
+  .marquee {
+    position: relative;
+    margin-top: clamp(4rem, 8vw, 7rem);
+    padding-block: 1.5rem;
+    border-block: 1px solid var(--hairline);
+    overflow: hidden;
+  }
+
+  /* WCAG 2.2.2: se puede pausar con el ratón encima o con el botón (visible al tabular). */
+  .marquee:hover .marquee__track,
+  .marquee[data-paused] .marquee__track {
+    animation-play-state: paused;
+  }
+
+  .marquee__toggle {
+    position: absolute;
+    top: 50%;
+    left: var(--gutter);
+    z-index: 1;
+    translate: 0 -50%;
+    padding: 0.6em 1.1em;
+    border-radius: 999px;
+    background: var(--ball);
+    color: var(--ink);
+    font-size: var(--step--1);
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .marquee__toggle:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    animation: marquee 30s linear infinite;
+  }
+
+  .marquee li {
+    padding-inline: clamp(1.5rem, 3vw, 3rem);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-3);
+    line-height: 1;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--muted);
+  }
+
+  .marquee li:nth-child(odd) {
+    color: var(--line);
+    -webkit-text-stroke: 0;
+  }
+
+  @keyframes marquee {
+    to {
+      translate: -50% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .bento {
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: 240px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .bento {
+      grid-template-columns: 1fr;
+    }
+    .tile--xl,
+    .tile--wide {
+      grid-column: auto;
+      grid-row: auto;
+    }
+    .tile--xl {
+      height: 360px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const wrap = document.querySelector<HTMLElement>('[data-marquee-wrap]');
+    const toggle = wrap?.querySelector<HTMLButtonElement>('[data-marquee-toggle]');
+    toggle?.addEventListener('click', () => {
+      const paused = wrap!.toggleAttribute('data-paused');
+      toggle.setAttribute('aria-pressed', String(paused));
+      toggle.textContent = paused ? 'Reanudar marcas' : 'Pausar marcas';
+    });
+  });
+</script>

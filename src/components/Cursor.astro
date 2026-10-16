@@ -1,0 +1,64 @@
+---
+// Etiqueta que sigue al puntero solo sobre elementos con data-cursor. El cursor del sistema no se oculta.
+---
+<div class="cursor" aria-hidden="true" data-cursor-el transition:persist><span data-cursor-label></span></div>
+
+<style>
+  .cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 90;
+    display: grid;
+    place-items: center;
+    width: 5.5rem;
+    height: 5.5rem;
+    margin: -2.75rem 0 0 -2.75rem;
+    border-radius: 50%;
+    background: var(--ball);
+    color: var(--ink);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    pointer-events: none;
+    opacity: 0;
+    scale: 0.6;
+    transition:
+      opacity 200ms var(--ease-out),
+      scale 200ms var(--ease-out);
+  }
+
+  .cursor[data-active] {
+    opacity: 1;
+    scale: 1;
+  }
+
+  @media not ((hover: hover) and (pointer: fine)) {
+    .cursor {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { gsap, finePointer, reducedMotion } from '../lib/motion';
+
+  const el = document.querySelector<HTMLElement>('[data-cursor-el]')!;
+  const label = el.querySelector<HTMLElement>('[data-cursor-label]')!;
+
+  if (finePointer) {
+    const duration = reducedMotion ? 0 : 0.35;
+    const x = gsap.quickTo(el, 'x', { duration, ease: 'power3.out' });
+    const y = gsap.quickTo(el, 'y', { duration, ease: 'power3.out' });
+
+    addEventListener('pointermove', (e) => {
+      x(e.clientX);
+      y(e.clientY);
+      const target = (e.target as Element).closest<HTMLElement>('[data-cursor]');
+      if (target) label.textContent = target.dataset.cursor!;
+      el.toggleAttribute('data-active', !!target);
+    });
+    document.addEventListener('astro:before-swap', () => el.removeAttribute('data-active'));
+  }
+</script>

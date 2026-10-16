@@ -1,0 +1,72 @@
+---
+// Ilustración de producto en SVG con los colores de cada artículo: catálogo coherente sin fotos.
+interface Props {
+  art: 'racket' | 'balls' | 'grip' | 'bag' | 'shirt';
+  colors: { main: string; accent: string };
+  brand: string;
+  class?: string;
+  /** Nombre de View Transition: la ilustración viaja de la tarjeta a la ficha. */
+  vtName?: string;
+}
+const { art, colors, brand, class: className, vtName } = Astro.props;
+const { main, accent } = colors;
+const ink = '#0b0d0e';
+const ball = '#d7f23a';
+---
+<svg class={className} viewBox="-30 -30 460 460" aria-hidden="true" transition:name={vtName}>
+  {art === 'racket' && (
+    <g transform="rotate(-18 200 200)">
+      <path d="M200 30 C285 30 322 92 322 162 C322 237 275 290 200 312 C125 290 78 237 78 162 C78 92 115 30 200 30Z" fill={main} stroke={ink} stroke-width="6" />
+      <path d="M110 230 C160 150 240 130 300 90" fill="none" stroke={accent} stroke-width="12" stroke-linecap="round" />
+      <g fill={ink} opacity="0.45">
+        {[140, 170, 200, 230, 260].flatMap((x) => [100, 130, 160, 190, 220].map((y) => <circle cx={x} cy={y} r="5" />))}
+      </g>
+      <text x="200" y="272" text-anchor="middle" fill={accent} font-family="Big Shoulders Display Variable, sans-serif" font-weight="800" font-size="22" letter-spacing="2">{brand.toUpperCase()}</text>
+      <path d="M178 306 L186 346 L214 346 L222 306" fill={ink} />
+      <rect x="184" y="342" width="32" height="50" rx="8" fill="#f4f2ec" />
+    </g>
+  )}
+
+  {art === 'balls' && (
+    <g>
+      <rect x="130" y="40" width="140" height="330" rx="24" fill={main} />
+      <rect x="130" y="40" width="140" height="34" rx="12" fill={ink} opacity="0.5" />
+      <rect x="146" y="90" width="108" height="250" rx="54" fill="#ffffff" opacity="0.12" />
+      {[135, 215, 295].map((cy) => (
+        <g>
+          <circle cx="200" cy={cy} r="40" fill={ball} />
+          <path d={`M162 ${cy - 14} c22 10 22 18 0 28 M238 ${cy - 14} c-22 10 -22 18 0 28`} fill="none" stroke="#f4f2ec" stroke-width="4" stroke-linecap="round" />
+        </g>
+      ))}
+      <text x="200" y="64" text-anchor="middle" fill={accent} font-family="Big Shoulders Display Variable, sans-serif" font-weight="800" font-size="20" letter-spacing="2">{brand.toUpperCase()}</text>
+    </g>
+  )}
+
+  {art === 'grip' && (
+    <g transform="rotate(-30 200 200)">
+      <rect x="160" y="40" width="80" height="320" rx="30" fill={main} />
+      <g stroke={accent} stroke-width="6" opacity="0.8">
+        {Array.from({ length: 10 }, (_, i) => <line x1="160" y1={66 + i * 27} x2="240" y2={86 + i * 27} />)}
+      </g>
+      <rect x="160" y="40" width="80" height="320" rx="30" fill="none" stroke={ink} stroke-width="5" />
+    </g>
+  )}
+
+  {art === 'bag' && (
+    <g>
+      <path d="M150 110 v-24 a26 26 0 0 1 26 -26 h48 a26 26 0 0 1 26 26 v24" fill="none" stroke={accent} stroke-width="10" />
+      <rect x="60" y="110" width="280" height="230" rx="70" fill={main} />
+      <path d="M60 210 h280" stroke={accent} stroke-width="8" />
+      <rect x="160" y="240" width="80" height="50" rx="12" fill="none" stroke={accent} stroke-width="5" />
+      <text x="200" y="180" text-anchor="middle" fill={accent} font-family="Big Shoulders Display Variable, sans-serif" font-weight="800" font-size="30" letter-spacing="3">{brand.toUpperCase()}</text>
+    </g>
+  )}
+
+  {art === 'shirt' && (
+    <g>
+      <path d="M140 60 L80 90 L40 160 L95 185 L110 160 L110 350 L290 350 L290 160 L305 185 L360 160 L320 90 L260 60 C250 90 150 90 140 60Z" fill={main} stroke={ink} stroke-width="5" stroke-linejoin="round" />
+      <path d="M110 250 H290" stroke={accent} stroke-width="10" />
+      <circle cx="245" cy="130" r="12" fill={accent} />
+    </g>
+  )}
+</svg>

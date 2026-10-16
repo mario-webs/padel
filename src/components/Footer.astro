@@ -1,0 +1,175 @@
+---
+import { club, nav, whatsappLink } from '../data/site';
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="container footer__grid">
+    <div class="footer__cta">
+      <p class="eyebrow">¿Echamos un partido?</p>
+      <a class="footer__big-link" href={club.bookingUrl} target="_blank" rel="noopener" aria-describedby="new-tab">Reserva tu pista&nbsp;<span aria-hidden="true">↗</span></a>
+    </div>
+
+    <div>
+      <h2 class="footer__title">Horario</h2>
+      <dl class="footer__hours">
+        {club.hours.map((h) => (
+          <div><dt>{h.days}</dt><dd>{h.time}</dd></div>
+        ))}
+      </dl>
+    </div>
+
+    <div>
+      <h2 class="footer__title">Dónde</h2>
+      <address>
+        <a href={club.mapsUrl} target="_blank" rel="noopener" aria-describedby="new-tab">{club.address}</a><br />
+        <a href={`tel:${club.phone.replace(/\s/g, '')}`}>{club.phone}</a><br />
+        <a href={`mailto:${club.email}`}>{club.email}</a>
+      </address>
+    </div>
+
+    <div>
+      <h2 class="footer__title">Explora</h2>
+      <ul class="footer__list">
+        {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        <li><a href={whatsappLink('Hola, tengo una consulta')} target="_blank" rel="noopener" aria-describedby="new-tab">WhatsApp</a></li>
+        <li><a href={club.instagram} target="_blank" rel="noopener" aria-describedby="new-tab">Instagram</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="footer__wordmark" aria-hidden="true">{club.name}</p>
+
+  <div class="container footer__legal">
+    <p>© {year} {club.fullName}</p>
+    <p>Web de demostración: club, productos y precios ficticios.</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    overflow: hidden;
+    padding-top: var(--section);
+    background: var(--court-deep);
+    border-top: 1px solid var(--hairline);
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 2fr repeat(3, 1fr);
+    gap: 3rem var(--gutter);
+  }
+
+  .footer__big-link {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-3);
+    line-height: 0.95;
+    text-transform: uppercase;
+    transition: color var(--dur-ui) var(--ease-out);
+  }
+
+  .footer__big-link span {
+    display: inline-block;
+    color: var(--ball);
+    transition: translate 300ms var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .footer__big-link:hover {
+      color: var(--ball);
+    }
+    .footer__big-link:hover span {
+      translate: 0.12em -0.12em;
+    }
+  }
+
+  .footer__title {
+    margin-bottom: 1rem;
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+  }
+
+  .footer__hours div + div {
+    margin-top: 0.6rem;
+  }
+
+  .footer__hours dt {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .footer__hours dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  address {
+    font-style: normal;
+    line-height: 1.9;
+  }
+
+  .footer__list {
+    padding: 0;
+    list-style: none;
+    line-height: 1.9;
+  }
+
+  address a,
+  .footer__list a {
+    transition: color var(--dur-ui) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    address a:hover,
+    .footer__list a:hover {
+      color: var(--ball);
+    }
+  }
+
+  /* Wordmark gigante que se corta en el borde inferior */
+  .footer__wordmark {
+    margin-top: clamp(3rem, 8vw, 7rem);
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 31vw;
+    line-height: 0.72;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1px color-mix(in oklab, var(--line) 22%, transparent);
+    user-select: none;
+  }
+
+  .footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--hairline);
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
+    .footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .footer__cta {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .footer__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,161 @@
+---
+// Formulario sin servidor: valida en el navegador y abre WhatsApp con el mensaje ya escrito.
+interface Field {
+  name: string;
+  label: string;
+  type?: 'text' | 'tel' | 'email' | 'select' | 'textarea';
+  options?: string[];
+  required?: boolean;
+  autocomplete?: string;
+}
+interface Props {
+  intro: string;
+  fields: Field[];
+  submit: string;
+}
+const { intro, fields, submit } = Astro.props;
+---
+<form class="waform" data-waform data-intro={intro} novalidate>
+  {fields.map((f) => (
+    <label class:list={['field', { 'field--wide': f.type === 'textarea' }]}>
+      <span class="field__label">{f.label}{!f.required && <span class="field__optional"> (opcional)</span>}</span>
+      {f.type === 'select' ? (
+        <select name={f.name} required={f.required}>
+          <option value="">Elige una opción</option>
+          {f.options!.map((o) => <option>{o}</option>)}
+        </select>
+      ) : f.type === 'textarea' ? (
+        <textarea name={f.name} rows="4" required={f.required}></textarea>
+      ) : (
+        <input name={f.name} type={f.type ?? 'text'} required={f.required} autocomplete={f.autocomplete} />
+      )}
+      <span class="field__error" aria-live="polite"></span>
+    </label>
+  ))}
+  <div class="waform__foot">
+    <button class="btn btn--ball waform__submit" type="submit">{submit}</button>
+    <p class="waform__status" role="status"></p>
+  </div>
+</form>
+
+<style>
+  .waform {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .field--wide,
+  .waform__foot {
+    grid-column: 1 / -1;
+  }
+
+  .field__label {
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .field__optional {
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 0.9em 1em;
+    border: 0;
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 1px var(--hairline);
+    background: color-mix(in oklab, var(--line) 4%, transparent);
+    color: var(--line);
+    font: inherit;
+    transition: box-shadow var(--dur-ui) var(--ease-out);
+  }
+
+  .field select option {
+    background: var(--ink);
+  }
+
+  .field textarea {
+    resize: vertical;
+  }
+
+  .field :is(input, select, textarea):focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--ball);
+  }
+
+  .field [aria-invalid='true'] {
+    box-shadow: inset 0 0 0 2px #ff6b5b;
+  }
+
+  .field__error {
+    min-height: 1.2em;
+    font-size: var(--step--1);
+    color: #ff8a7e;
+  }
+
+  .waform__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .waform__status {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  @media (max-width: 640px) {
+    .waform {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { whatsappLink } from '../data/site';
+
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll<HTMLFormElement>('[data-waform]').forEach((form) => {
+      const controls = [...form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('[name]')];
+      const status = form.querySelector('.waform__status')!;
+
+      const check = (el: (typeof controls)[number]) => {
+        const error = el.closest('.field')!.querySelector('.field__error')!;
+        const message = el.validity.valueMissing
+          ? 'Este campo es obligatorio.'
+          : el.validity.typeMismatch
+            ? 'Revisa el formato.'
+            : '';
+        error.textContent = message;
+        el.setAttribute('aria-invalid', String(!!message));
+        return !message;
+      };
+      controls.forEach((el) => el.addEventListener('blur', () => check(el)));
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const invalid = controls.filter((el) => !check(el));
+        if (invalid.length) {
+          invalid[0].focus();
+          status.textContent = '';
+          return;
+        }
+        const lines = controls
+          .filter((el) => el.value.trim())
+          .map((el) => `${el.closest('.field')!.querySelector('.field__label')!.childNodes[0].textContent}: ${el.value.trim()}`);
+        window.open(whatsappLink([form.dataset.intro, ...lines].join('\n')), '_blank', 'noopener');
+        status.textContent = 'Te abrimos WhatsApp con el mensaje listo para enviar.';
+      });
+    });
+  });
+</script>

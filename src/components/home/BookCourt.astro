@@ -1,0 +1,150 @@
+---
+import { club } from '../../data/site';
+import { courtPrices } from '../../data/club';
+
+interface Props {
+  /** Número de sección (solo en la portada). */
+  num?: string;
+}
+const { num } = Astro.props;
+---
+<section class="book" aria-labelledby="book-title" data-book>
+  <!-- Pista cenital a sangre; las líneas se dibujan con el scroll. -->
+  <svg class="book__court" viewBox="0 0 100 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g fill="none" stroke="var(--line)" stroke-width="0.4" opacity="0.35" data-court-lines>
+      <rect x="5" y="5" width="90" height="190" pathLength="1" />
+      <line x1="5" y1="100" x2="95" y2="100" pathLength="1" stroke="var(--ball)" stroke-width="0.8" />
+      <line x1="5" y1="35" x2="95" y2="35" pathLength="1" />
+      <line x1="5" y1="165" x2="95" y2="165" pathLength="1" />
+      <line x1="50" y1="35" x2="50" y2="165" pathLength="1" />
+    </g>
+  </svg>
+
+  <div class="container book__content">
+    <p class="eyebrow">{num && <span class="num">{num}</span>} Reservas</p>
+    <h2 id="book-title" class="book__title" data-reveal>Tu pista<br />te espera</h2>
+
+    <ul class="prices">
+      {courtPrices.map((p) => (
+        <li>
+          <span class="prices__slot">{p.slot}</span>
+          <span class="prices__hours">{p.hours}</span>
+          <span class="prices__price">{p.price} €<small> / 90 min</small></span>
+        </li>
+      ))}
+    </ul>
+
+    <a class="btn btn--ball book__cta" href={club.bookingUrl} target="_blank" rel="noopener" aria-describedby="new-tab" data-magnetic>
+      Reservar en Playtomic <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .book {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 100svh;
+    padding-block: var(--section);
+    overflow: hidden;
+    background: var(--turf);
+    text-align: center;
+  }
+
+  .book__court {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .book__content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .book__title {
+    font-size: var(--step-5);
+  }
+
+  .prices {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: min(100%, 900px);
+    margin-top: 1rem;
+    padding: 0;
+    list-style: none;
+    border-radius: var(--radius);
+    border: 1px solid var(--hairline);
+    background: color-mix(in oklab, var(--ink) 45%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .prices li {
+    display: grid;
+    gap: 0.25rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .prices li + li {
+    border-left: 1px solid var(--hairline);
+  }
+
+  .prices__slot {
+    font-weight: 600;
+  }
+
+  .prices__hours {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .prices__price {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-2);
+  }
+
+  .prices__price small {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  .book__cta {
+    margin-top: 1rem;
+    font-size: var(--step-0);
+    padding: 1.1em 2em;
+  }
+
+  @media (max-width: 640px) {
+    .prices {
+      grid-template-columns: 1fr;
+    }
+    .prices li + li {
+      border-left: 0;
+      border-top: 1px solid var(--hairline);
+    }
+  }
+</style>
+
+<script>
+  import { gsap, onPage } from '../../lib/motion';
+
+  onPage(() => {
+    const section = document.querySelector<HTMLElement>('[data-book]');
+    if (!section) return;
+    gsap.fromTo(
+      section.querySelectorAll('[data-court-lines] > *'),
+      { strokeDasharray: 1, strokeDashoffset: 1 },
+      { strokeDashoffset: 0, ease: 'none', stagger: 0.1, scrollTrigger: { trigger: section, start: 'top 80%', end: 'center center', scrub: true } },
+    );
+  });
+</script>

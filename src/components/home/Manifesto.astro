@@ -1,0 +1,123 @@
+---
+import { stats } from '../../data/club';
+const fmt = new Intl.NumberFormat('es-ES');
+---
+<section class="manifesto" aria-labelledby="manifesto-title">
+  <div class="container">
+    <p class="eyebrow"><span class="num">01</span> Qué hacemos</p>
+    <h2 id="manifesto-title" class="visually-hidden">Qué hacemos</h2>
+    <p class="manifesto__text" data-manifesto>
+      Somos un club hecho por jugadores. Abrimos las pistas a las siete de la mañana y las cerramos cuando acaba el último punto. Aquí aprendes, compites, pruebas tu próxima pala y te quedas a tomar algo con tu pareja de dobles.
+    </p>
+
+    <dl class="stats">
+      {stats.map((s) => (
+        <div class="stats__item">
+          <dt>{s.label}</dt>
+          <dd data-count={s.value}>{fmt.format(s.value)}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>
+
+<style>
+  .manifesto {
+    padding-block: var(--section);
+  }
+
+  .manifesto__text {
+    max-width: 22ch;
+    margin-top: 2rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--step-3);
+    line-height: 1;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: clamp(4rem, 8vw, 8rem);
+    border-top: 1px solid var(--hairline);
+  }
+
+  .stats__item {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    padding: 1.5rem 1.5rem 0 0;
+  }
+
+  .stats__item + .stats__item {
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--hairline);
+  }
+
+  .stats dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-4);
+    line-height: 0.9;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stats dt {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  @media (max-width: 760px) {
+    .stats {
+      grid-template-columns: 1fr 1fr;
+    }
+    .stats__item:nth-child(3) {
+      padding-left: 0;
+      border-left: 0;
+    }
+    .stats__item:nth-child(n + 3) {
+      border-top: 1px solid var(--hairline);
+      margin-top: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  import { gsap, onPage, SplitText } from '../../lib/motion';
+
+  onPage(() => {
+    const text = document.querySelector<HTMLElement>('[data-manifesto]');
+    if (!text) return;
+
+    // Cada palabra pasa de apagada a encendida al ritmo del scroll.
+    SplitText.create(text, {
+      type: 'words',
+      // Sin aria-label: un <p> no lo admite y el texto partido se sigue leyendo igual.
+      aria: 'none',
+      autoSplit: true,
+      onSplit: (self) =>
+        gsap.fromTo(
+          self.words,
+          // 0.38 mantiene contraste ≥ 3:1 (texto grande, WCAG AA) en el estado apagado.
+          { opacity: 0.38 },
+          { opacity: 1, ease: 'none', stagger: 0.1, scrollTrigger: { trigger: text, start: 'top 80%', end: 'bottom 45%', scrub: true } },
+        ),
+    });
+
+    const fmt = new Intl.NumberFormat('es-ES');
+    document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+      const value = { n: 0 };
+      el.textContent = '0';
+      gsap.to(value, {
+        n: Number(el.dataset.count),
+        duration: 1.6,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+        onUpdate: () => (el.textContent = fmt.format(Math.round(value.n))),
+      });
+    });
+  });
+</script>

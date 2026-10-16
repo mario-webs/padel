@@ -1,0 +1,252 @@
+---
+import { Image } from 'astro:assets';
+import { levels, coaches } from '../../data/club';
+import { photos } from '../../lib/photos';
+
+interface Props {
+  /** Número de sección (solo en la portada). */
+  num?: string;
+}
+const { num } = Astro.props;
+---
+<section class="classes" aria-labelledby="classes-title">
+  <div class="container classes__grid">
+    <div class="classes__intro">
+      <p class="eyebrow">{num && <span class="num">{num}</span>} Clases</p>
+      <h2 id="classes-title" class="classes__title" data-reveal>Un nivel<br />para cada<br />jugador</h2>
+      <p class="classes__lead">Grupos de máximo 4 personas por pista. Haz una prueba de nivel gratis y te colocamos en el grupo que te toca.</p>
+      <a class="btn btn--ball" href="/clases" data-magnetic>Prueba de nivel gratis</a>
+    </div>
+
+    <!-- Tarjetas apiladas: cada una se queda fija (sticky) y la siguiente la tapa. -->
+    <ol class="stack" data-stack>
+      {levels.map((l, i) => (
+        <li class="card" style={`--i:${i}`}>
+          <div class="card__top">
+            <span class="card__num">{String(i + 1).padStart(2, '0')}</span>
+            <span class="card__price">{l.price} €<small>/mes</small></span>
+          </div>
+          <h3 class="card__title">{l.name}</h3>
+          <p class="card__who">{l.who}</p>
+          <p class="card__detail">{l.detail}</p>
+          <p class="card__schedule">{l.schedule}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  <div class="container coaches">
+    <h3 class="coaches__title">Entrenadores</h3>
+    <ul class="coaches__list">
+      {coaches.map((c) => (
+        <li class="coach">
+          <div class="coach__media">
+            <Image quality={65} src={photos[c.image]} alt={`${c.name}, ${c.role}`} widths={[400, 700]} sizes="(max-width: 760px) 90vw, 30vw" />
+          </div>
+          <p class="coach__name">{c.name}</p>
+          <p class="coach__role">{c.role}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .classes {
+    padding-block: var(--section);
+  }
+
+  .classes__grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: var(--gutter);
+    align-items: start;
+  }
+
+  .classes__intro {
+    position: sticky;
+    top: 7rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+
+  .classes__title {
+    font-size: var(--step-4);
+  }
+
+  .classes__lead {
+    max-width: 34ch;
+    color: var(--muted);
+  }
+
+  .stack {
+    display: grid;
+    gap: 1.5rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card {
+    position: sticky;
+    top: calc(7rem + var(--i) * 1.25rem);
+    display: grid;
+    gap: 0.75rem;
+    min-height: 22rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border-radius: var(--radius);
+    background: var(--court);
+    border: 1px solid var(--hairline);
+    box-shadow: 0 -20px 40px rgb(0 0 0 / 0.35);
+    transform-origin: 50% 0;
+  }
+
+  .card:nth-child(even) {
+    background: var(--turf);
+  }
+
+  .card:last-child {
+    background: var(--ball);
+    color: var(--ink);
+  }
+
+  .card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .card__num {
+    font-size: var(--step--1);
+    letter-spacing: 0.14em;
+    opacity: 0.7;
+  }
+
+  .card__price {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-2);
+  }
+
+  .card__price small {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: var(--step--1);
+    opacity: 0.7;
+  }
+
+  .card__title {
+    font-size: var(--step-3);
+  }
+
+  .card__who {
+    font-weight: 600;
+  }
+
+  .card__detail {
+    max-width: 44ch;
+    opacity: 0.75;
+  }
+
+  .card__schedule {
+    align-self: end;
+    padding-top: 1rem;
+    border-top: 1px solid currentColor;
+    border-color: color-mix(in oklab, currentColor 20%, transparent);
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .coaches {
+    margin-top: var(--section);
+  }
+
+  .coaches__title {
+    margin-bottom: 2rem;
+    font-size: var(--step-2);
+  }
+
+  .coaches__list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--gutter);
+    padding: 0;
+    list-style: none;
+  }
+
+  .coach__media {
+    overflow: hidden;
+    border-radius: var(--radius);
+    aspect-ratio: 4 / 5;
+    background: var(--court);
+  }
+
+  .coach__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.1);
+    mix-blend-mode: luminosity;
+    transition: filter 500ms var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .coach:hover img {
+      filter: none;
+    }
+  }
+
+  .coach__name {
+    margin-top: 1rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-1);
+    text-transform: uppercase;
+  }
+
+  .coach__role {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  @media (max-width: 900px) {
+    .classes__grid {
+      grid-template-columns: 1fr;
+    }
+    .classes__intro {
+      position: static;
+      margin-bottom: 2rem;
+    }
+    .card {
+      top: calc(5.5rem + var(--i) * 1rem);
+      min-height: 20rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .coaches__list {
+      grid-template-columns: 1fr;
+    }
+    .coach__media {
+      aspect-ratio: 4 / 3;
+    }
+  }
+</style>
+
+<script>
+  import { gsap, onPage } from '../../lib/motion';
+
+  onPage(() => {
+    const cards = gsap.utils.toArray<HTMLElement>('[data-stack] > .card');
+    // Cada tarjeta se hunde un poco cuando la siguiente la tapa.
+    cards.slice(0, -1).forEach((card, i) => {
+      gsap.to(card, {
+        scale: 0.92,
+        opacity: 0.55,
+        ease: 'none',
+        scrollTrigger: { trigger: cards[i + 1], start: 'top bottom', end: () => `top ${parseFloat(getComputedStyle(cards[i + 1]).top)}px`, scrub: true, invalidateOnRefresh: true },
+      });
+    });
+  });
+</script>

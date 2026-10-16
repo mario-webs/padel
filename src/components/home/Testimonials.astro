@@ -1,0 +1,129 @@
+---
+import { testimonials } from '../../data/club';
+
+interface Props {
+  /** Número de sección (solo en la portada). */
+  num?: string;
+}
+const { num } = Astro.props;
+---
+<section class="voices" aria-labelledby="voices-title">
+  <div class="container">
+    <p class="eyebrow">{num && <span class="num">{num}</span>} Comunidad</p>
+    <h2 id="voices-title" class="voices__title" data-reveal>Lo que se dice<br />en la pista</h2>
+  </div>
+
+  <!-- Táctil: scroll nativo con snap. Ratón: arrastrable con inercia. -->
+  <ul class="voices__track" data-voices tabindex="0" aria-label="Opiniones de socios">
+    {testimonials.map((t) => (
+      <li class="quote">
+        <blockquote>
+          <p>“{t.quote}”</p>
+        </blockquote>
+        <p class="quote__by"><strong>{t.name}</strong> · {t.meta}</p>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .voices {
+    padding-block: var(--section);
+    overflow: hidden;
+  }
+
+  .voices__title {
+    margin-top: 1.25rem;
+    font-size: var(--step-4);
+  }
+
+  .voices__track {
+    display: flex;
+    gap: 1rem;
+    margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+    padding: 0 var(--gutter) 1rem;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+
+  .voices__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .voices__track.is-draggable {
+    overflow: visible;
+    scroll-snap-type: none;
+    cursor: grab;
+  }
+
+  .voices__track.is-draggable:active {
+    cursor: grabbing;
+  }
+
+  .quote {
+    flex: 0 0 min(80vw, 440px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    min-height: 18rem;
+    padding: 2rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--hairline);
+    background: color-mix(in oklab, var(--court) 40%, var(--ink));
+    scroll-snap-align: start;
+  }
+
+  .quote blockquote {
+    font-size: var(--step-1);
+    line-height: 1.35;
+  }
+
+  .quote__by {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .quote__by strong {
+    color: var(--line);
+  }
+</style>
+
+<script>
+  import { gsap, onPage, finePointer } from '../../lib/motion';
+  // Solo esta sección arrastra: Draggable e Inertia no van en el paquete común.
+  import { Draggable } from 'gsap/Draggable';
+  import { InertiaPlugin } from 'gsap/InertiaPlugin';
+
+  gsap.registerPlugin(Draggable, InertiaPlugin);
+
+  onPage(() => {
+    const track = document.querySelector<HTMLElement>('[data-voices]');
+    if (!track || !finePointer) return;
+    track.classList.add('is-draggable');
+    const [drag] = Draggable.create(track, {
+      type: 'x',
+      inertia: true,
+      edgeResistance: 0.85,
+      bounds: { minX: -(track.scrollWidth - track.clientWidth), maxX: 0 },
+    });
+    // Sin scroll nativo, las flechas del teclado mueven el carrusel.
+    const step = (track.firstElementChild as HTMLElement).offsetWidth + 16;
+    const onKey = (e: KeyboardEvent) => {
+      const dir = e.key === 'ArrowRight' ? -1 : e.key === 'ArrowLeft' ? 1 : 0;
+      if (!dir) return;
+      e.preventDefault();
+      const x = gsap.utils.clamp(drag.minX, drag.maxX, (gsap.getProperty(track, 'x') as number) + dir * step);
+      gsap.to(track, { x, duration: 0.5, ease: 'power3.out', onUpdate: () => drag.update() });
+    };
+    track.addEventListener('keydown', onKey);
+    return () => {
+      track.removeEventListener('keydown', onKey);
+      drag.kill();
+      track.classList.remove('is-draggable');
+    };
+  });
+</script>

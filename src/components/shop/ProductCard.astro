@@ -1,0 +1,102 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ProductArt from './ProductArt.astro';
+import { formatPrice } from '../../lib/shop';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+}
+const { product } = Astro.props;
+const p = product.data;
+---
+<li class="pcard" data-product data-category={p.category} data-price={p.price} data-order={p.order}>
+  <a href={`/tienda/${product.id}`} class="pcard__link" data-cursor="Ver">
+    <div class="pcard__media" style={`--tint:${p.colors.main}`}>
+      <ProductArt class="pcard__art" art={p.art} colors={p.colors} brand={p.brand} vtName={`art-${product.id}`} />
+      {p.badge && <span class="pcard__badge">{p.badge}</span>}
+    </div>
+    <div class="pcard__info">
+      <p class="pcard__brand">{p.brand}</p>
+      <h3 class="pcard__title">{p.title}</h3>
+      <p class="pcard__price">
+        {p.oldPrice && <s><span class="visually-hidden">Antes </span>{formatPrice(p.oldPrice)}</s>}
+        <span>{formatPrice(p.price)}</span>
+      </p>
+    </div>
+  </a>
+</li>
+
+<style>
+  .pcard__link {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100%;
+  }
+
+  .pcard__media {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background:
+      radial-gradient(70% 60% at 50% 45%, color-mix(in oklab, var(--tint) 35%, transparent), transparent),
+      color-mix(in oklab, var(--court) 55%, var(--ink));
+    border: 1px solid var(--hairline);
+  }
+
+  .pcard__art {
+    width: 72%;
+    transition: scale 500ms var(--ease-out), rotate 500ms var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .pcard__link:hover .pcard__art {
+      scale: 1.06;
+      rotate: -4deg;
+    }
+  }
+
+  .pcard__badge {
+    position: absolute;
+    top: 0.9rem;
+    left: 0.9rem;
+    padding: 0.35em 0.8em;
+    border-radius: 999px;
+    background: var(--ball);
+    color: var(--ink);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .pcard__brand {
+    font-size: var(--step--1);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .pcard__title {
+    margin-top: 0.2rem;
+    font-size: var(--step-1);
+    line-height: 1;
+  }
+
+  .pcard__price {
+    display: flex;
+    gap: 0.6rem;
+    align-items: baseline;
+    margin-top: 0.4rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pcard__price s {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: var(--step--1);
+  }
+</style>

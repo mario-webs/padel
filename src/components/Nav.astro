@@ -1,0 +1,308 @@
+---
+import Logo from './Logo.astro';
+import { club, nav } from '../data/site';
+---
+<header class="nav" data-nav transition:persist>
+  <a href="/" class="nav__logo"><Logo /></a>
+
+  <nav aria-label="Principal" class="nav__main">
+    <ul class="nav__links">
+      {nav.map((item) => <li><a href={item.href} data-nav-link>{item.label}</a></li>)}
+    </ul>
+  </nav>
+
+  <div class="nav__actions">
+    <a class="btn btn--ball nav__cta" href={club.bookingUrl} target="_blank" rel="noopener" aria-describedby="new-tab">
+      Reservar pista
+    </a>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="site-menu" data-menu-toggle>
+      <span class="visually-hidden">Abrir menú</span>
+      <span class="nav__burger" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <div id="site-menu" class="menu" data-menu inert>
+    <nav aria-label="Menú móvil">
+      <ul class="menu__links">
+        <li style="--i:0"><a href="/" data-nav-link>Inicio</a></li>
+        {nav.map((item, i) => <li style={`--i:${i + 1}`}><a href={item.href} data-nav-link>{item.label}</a></li>)}
+      </ul>
+    </nav>
+    <div class="menu__foot">
+      <a class="btn btn--ball" href={club.bookingUrl} target="_blank" rel="noopener" aria-describedby="new-tab">Reservar pista</a>
+      <p>{club.address}</p>
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem var(--gutter);
+    transition: translate 450ms var(--ease-out);
+    /* Fuera de la cortina de transición: el menú no se mueve al cambiar de página. */
+    view-transition-name: site-nav;
+  }
+
+  /* Fondo de cristal: evoca el vidrio de la pista */
+  .nav::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--glass);
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    border-bottom: 1px solid var(--hairline);
+    opacity: 0;
+    transition: opacity 300ms var(--ease-out);
+  }
+
+  .nav[data-scrolled]::before {
+    opacity: 1;
+  }
+
+  .nav[data-hidden]:not([data-open]) {
+    translate: 0 -110%;
+  }
+
+  .nav__logo {
+    position: relative;
+    z-index: 2;
+  }
+
+  .nav__links {
+    display: flex;
+    gap: 0.3rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav__links a {
+    position: relative;
+    display: block;
+    padding: 0.5em 0.85em;
+    font-size: var(--step--1);
+    font-weight: 500;
+    color: var(--muted);
+    transition: color var(--dur-ui) var(--ease-out);
+  }
+
+  /* Subrayado = línea de pista que se dibuja */
+  .nav__links a::after {
+    content: '';
+    position: absolute;
+    left: 0.85em;
+    right: 0.85em;
+    bottom: 0.25em;
+    height: 1.5px;
+    background: var(--ball);
+    scale: 0 1;
+    transform-origin: right;
+    transition: scale 350ms var(--ease-out);
+  }
+
+  .nav__links a[aria-current='page'] {
+    color: var(--line);
+  }
+
+  .nav__links a[aria-current='page']::after {
+    scale: 1 1;
+  }
+
+  @media (hover: hover) {
+    .nav__links a:hover {
+      color: var(--line);
+    }
+    .nav__links a:hover::after {
+      scale: 1 1;
+      transform-origin: left;
+    }
+  }
+
+  .nav__actions {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav__toggle {
+    display: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+
+  .nav__burger,
+  .nav__burger::before {
+    display: block;
+    width: 1.1rem;
+    height: 1.5px;
+    margin-inline: auto;
+    background: currentColor;
+    transition: translate 300ms var(--ease-out), rotate 300ms var(--ease-out);
+  }
+
+  .nav__burger {
+    translate: 0 -3px;
+  }
+
+  .nav__burger::before {
+    content: '';
+    translate: 0 6px;
+  }
+
+  [data-open] .nav__burger {
+    translate: 0 0;
+    rotate: 45deg;
+  }
+
+  [data-open] .nav__burger::before {
+    translate: 0 0;
+    rotate: -90deg;
+  }
+
+  /* Menú a pantalla completa: se abre como un círculo desde el botón */
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 6.5rem var(--gutter) 2rem;
+    background: var(--court);
+    clip-path: circle(0% at calc(100% - var(--gutter) - 1.4rem) 2.3rem);
+    visibility: hidden;
+    transition:
+      clip-path 500ms var(--ease-in-out),
+      visibility 0s 500ms;
+  }
+
+  [data-open] .menu {
+    clip-path: circle(150% at calc(100% - var(--gutter) - 1.4rem) 2.3rem);
+    visibility: visible;
+    transition: clip-path 550ms var(--ease-in-out);
+  }
+
+  .menu__links {
+    padding: 0;
+    list-style: none;
+  }
+
+  .menu__links li {
+    overflow: hidden;
+  }
+
+  .menu__links a {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(3rem, 15vw, 6rem);
+    line-height: 1;
+    text-transform: uppercase;
+    translate: 0 105%;
+    transition: translate 500ms var(--ease-out);
+  }
+
+  .menu__links a[aria-current='page'] {
+    color: var(--ball);
+  }
+
+  [data-open] .menu__links a {
+    translate: 0 0;
+    transition-delay: calc(150ms + var(--i) * 40ms);
+  }
+
+  .menu__foot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  @media (max-width: 900px) {
+    .nav__main {
+      display: none;
+    }
+    .nav__toggle {
+      display: grid;
+      place-items: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .nav__cta {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { lenis } from '../lib/motion';
+
+  const header = document.querySelector<HTMLElement>('[data-nav]')!;
+  const toggle = header.querySelector<HTMLButtonElement>('[data-menu-toggle]')!;
+  const menu = header.querySelector<HTMLElement>('[data-menu]')!;
+  const toggleLabel = toggle.querySelector('.visually-hidden')!;
+
+  function setOpen(open: boolean) {
+    header.toggleAttribute('data-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggleLabel.textContent = open ? 'Cerrar menú' : 'Abrir menú';
+    menu.inert = !open;
+    // El resto de la página queda inactivo: el foco no puede salir del menú abierto.
+    document.querySelectorAll('#main, footer, .skip-link').forEach((el) => el.toggleAttribute('inert', open));
+    if (open) {
+      lenis?.stop();
+      menu.querySelector('a')?.focus({ preventScroll: true });
+    } else {
+      lenis?.start();
+    }
+  }
+
+  toggle.addEventListener('click', () => setOpen(!header.hasAttribute('data-open')));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && header.hasAttribute('data-open')) {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+
+  // Ocultar al bajar, mostrar al subir.
+  let lastY = 0;
+  addEventListener(
+    'scroll',
+    () => {
+      const y = scrollY;
+      header.toggleAttribute('data-scrolled', y > 24);
+      header.toggleAttribute('data-hidden', y > 160 && y > lastY);
+      lastY = y;
+    },
+    { passive: true },
+  );
+
+  // El header persiste entre páginas: actualizar el enlace activo en cada carga.
+  document.addEventListener('astro:page-load', () => {
+    setOpen(false);
+    const path = location.pathname.replace(/\/$/, '') || '/';
+    header.querySelectorAll<HTMLAnchorElement>('[data-nav-link]').forEach((a) => {
+      const href = a.getAttribute('href')!;
+      const active = href === '/' ? path === '/' : path.startsWith(href);
+      if (active) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+  });
+</script>

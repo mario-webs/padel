@@ -1,0 +1,189 @@
+---
+import { Image } from 'astro:assets';
+import { services } from '../../data/club';
+import { photos } from '../../lib/photos';
+---
+<section class="services" aria-labelledby="services-title" data-services>
+  <div class="container services__head">
+    <p class="eyebrow"><span class="num">02</span> Servicios</p>
+    <h2 id="services-title" class="services__title" data-reveal>Todo lo que pasa<br />en una pista</h2>
+  </div>
+
+  <!-- En escritorio el track se fija y avanza en horizontal con el scroll vertical; en móvil, carrusel nativo. -->
+  <ol class="services__track" data-services-track>
+    {services.map((s, i) => (
+      <li class="panel">
+        <div class="panel__media" data-panel-media>
+          <Image quality={65} src={photos[s.image]} alt="" widths={[640, 960, 1400]} sizes="(max-width: 760px) 85vw, 50vw" />
+        </div>
+        <div class="panel__body">
+          <span class="panel__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <h3 class="panel__title">{s.title}</h3>
+          <p class="panel__text">{s.text}</p>
+          <a class="btn btn--ghost" href={s.href}>{s.cta} <span aria-hidden="true">→</span></a>
+        </div>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .services {
+    padding-block: var(--section) 0;
+    background: var(--court-deep);
+  }
+
+  .services__title {
+    margin-top: 1.25rem;
+    font-size: var(--step-4);
+  }
+
+  .services__track {
+    display: flex;
+    gap: var(--gutter);
+    margin: 0;
+    padding: clamp(3rem, 6vw, 5rem) var(--gutter) var(--section);
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .services__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .services__track.is-pinned {
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .panel {
+    flex: 0 0 min(82vw, 1100px);
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: stretch;
+    scroll-snap-align: start;
+    scroll-margin-left: var(--gutter);
+  }
+
+  .panel__media {
+    overflow: hidden;
+    border-radius: var(--radius);
+    aspect-ratio: 4 / 3;
+  }
+
+  .panel__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .panel__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding-block: 0.5rem;
+  }
+
+  .panel__num {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-3);
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--ball);
+  }
+
+  .panel__title {
+    font-size: var(--step-3);
+  }
+
+  .panel__text {
+    max-width: 36ch;
+    color: var(--muted);
+  }
+
+  .panel .btn {
+    margin-top: auto;
+  }
+
+  @media (max-width: 760px) {
+    .panel {
+      flex-basis: 85vw;
+      grid-template-columns: 1fr;
+    }
+    .panel .btn {
+      margin-top: 0;
+    }
+  }
+</style>
+
+<script>
+  import { gsap, onPage, lenis } from '../../lib/motion';
+
+  onPage(() => {
+    const track = document.querySelector<HTMLElement>('[data-services-track]');
+    if (!track) return;
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 761px)', () => {
+      track.classList.add('is-pinned');
+      const distance = () => track.scrollWidth - innerWidth;
+
+      const scroll = gsap.to(track, {
+        x: () => -distance(),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: track,
+          start: 'center center',
+          end: () => `+=${distance()}`,
+          pin: true,
+          scrub: 1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      // Cada foto se abre como una cortina al entrar desde la derecha.
+      track.querySelectorAll<HTMLElement>('[data-panel-media]').forEach((media, i) => {
+        if (i === 0) return;
+        gsap.fromTo(
+          media,
+          { clipPath: 'inset(0% 0% 0% 100% round 14px)' },
+          {
+            clipPath: 'inset(0% 0% 0% 0% round 14px)',
+            ease: 'none',
+            scrollTrigger: { trigger: media, containerAnimation: scroll, start: 'left 95%', end: 'left 45%', scrub: true },
+          },
+        );
+        gsap.fromTo(
+          media.querySelector('img'),
+          { scale: 1.25 },
+          { scale: 1, ease: 'none', scrollTrigger: { trigger: media, containerAnimation: scroll, start: 'left right', end: 'right 60%', scrub: true } },
+        );
+      });
+
+      // Teclado: al tabular a un panel fuera de pantalla, el scroll vertical lo trae a la vista.
+      const first = track.firstElementChild as HTMLElement;
+      const onFocus = (e: FocusEvent) => {
+        const panel = (e.target as Element).closest<HTMLElement>('.panel');
+        const st = scroll.scrollTrigger;
+        if (!panel || !st) return;
+        const progress = Math.min(1, (panel.offsetLeft - first.offsetLeft) / distance());
+        const y = st.start + (st.end - st.start) * progress;
+        if (lenis) lenis.scrollTo(y, { immediate: true });
+        else scrollTo(0, y);
+      };
+      track.addEventListener('focusin', onFocus);
+
+      return () => {
+        track.removeEventListener('focusin', onFocus);
+        track.classList.remove('is-pinned');
+      };
+    });
+
+    return () => mm.revert();
+  });
+</script>
